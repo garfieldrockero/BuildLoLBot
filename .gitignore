@@ -1,1 +1,10 @@
+#Folders
+/imagenes_items
+/imagenes_items_modificadas
+/.venv
+
+#Files
 token.json
+background.png
+result.png
+merged_images.png

@@ -2,6 +2,9 @@ import requests
 from bs4 import BeautifulSoup
 import telebot
 import json
+from PIL import Image
+import os
+
  
 with open('token.json', 'r') as file:
     config = json.load(file)
@@ -30,6 +33,7 @@ def scrape_build(champion_name, mode):
     # Check 200 Status
     if response.status_code == 200:
         build =  []
+        build_img = []
         soup = BeautifulSoup(response.text, 'html.parser')
         
         # first Container
@@ -65,12 +69,39 @@ def scrape_build(champion_name, mode):
                         for item in build_items:
                             print(item['alt'])
                             build.append(item['alt'])
+                            build_img.append(item['alt'])
                     else:
                         print("No se encontró la información de la build.")
                 contador += 1
-        return build
+        return build, build_img
     else:
         print("No se pudo obtener la página." + str(response))
+
+def generate_Imagen(build_img):
+    img_list = []
+    for img_path in build_img:
+        img_list.append(Image.open("imagenes_items_modificadas/" + img_path + ".png"))
+
+    img_size = img_list[0].size
+
+    total_width = max([img.size[0] for img in img_list]) * 4
+    total_height = max([img.size[1] for img in img_list]) * 4
+    new_im = Image.new('RGB', (total_width, total_height), (39, 39, 39))
+
+    current_x = 0
+    current_y = 0
+    for img in img_list:
+        new_im.paste(img, (current_x, current_y))
+        current_x += img_size[0]
+        if current_x >= total_width:
+            current_x = 0
+            current_y += img_size[1]
+
+    image_path = "merged_images.png"
+    new_im.save(image_path, "PNG")
+    new_im.show()
+    return image_path
+
 @bot.message_handler(commands=['start', 'help'])
 def send_welcome(message):
     bot.reply_to(message, "¡Hola! Envía /build seguido del nombre del campeón para obtener una build, si quieres que la build sea de ARAM añade al final del comando aram")
@@ -83,11 +114,14 @@ def send_builds(message):
     mode = ''
     if len(msg) == 3:
         mode = msg[2]
-    builds = scrape_build(champion_name, mode)
+    builds, build_img = scrape_build(champion_name, mode)
+    imagen = generate_Imagen(build_img)
     print('build!!!! ' + str(builds))
     builds = '\n'.join(builds)
     if builds:
         bot.reply_to(message, builds)
+        with open(imagen, 'rb') as photo:
+            bot.send_photo(message.chat.id, photo)
     else:
         bot.reply_to(message, f"No se pudieron encontrar builds para " +  champion_name + " en este momento.")
 
