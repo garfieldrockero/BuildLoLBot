@@ -2,7 +2,7 @@ import requests
 from bs4 import BeautifulSoup
 import telebot
 import json
-
+ 
 with open('token.json', 'r') as file:
     config = json.load(file)
 
