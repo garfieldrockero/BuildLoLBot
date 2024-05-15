@@ -19,12 +19,19 @@ build_runes = []
 build = []
 titulos = ['Runas', 'Hechizos', 'Objetos']
 url = ''
-def scrape_build(champion_name, mode):
+positionlist = ['top', 'jungle', 'mid', 'adc', 'support']
+experimental_build = False
+def scrape_build(champion_name, mode, position):
+    print('POSITION: ' + position)
     # check the mode
     if mode.lower() == 'aram':
         url = 'https://mobalytics.gg/lol/champions/' + champion_name + '/aram-builds'
     else:
-        url = 'https://mobalytics.gg/lol/champions/' + champion_name + '/build'
+        if position != "" and position in positionlist:
+            url = 'https://mobalytics.gg/lol/champions/' + champion_name + '/build/' + position
+        else:
+            url = 'https://mobalytics.gg/lol/champions/' + champion_name + '/build'
+        
     print(url)
 
 
@@ -38,7 +45,17 @@ def scrape_build(champion_name, mode):
         
         # first Container
         build_container = soup.find_all('div', class_='m-owe8v3')
-        print ('BUILD CONTAINER  '+ str(build_container))
+        #print ('BUILD CONTAINER  '+ str(build_container))
+        
+        #search warning icon 
+        popular_container = soup.find_all('div', class_= 'm-1m86nuz')
+        for popular in popular_container:
+            warning = popular.find('img')
+            if warning and warning['alt'] == 'warning':
+                experimental_build = True
+            else:
+                experimental_build = False
+        
         contador = 0
         for container in build_container:
             print('CONTADOR ' + str(contador))
@@ -73,7 +90,7 @@ def scrape_build(champion_name, mode):
                     else:
                         print("No se encontró la información de la build.")
                 contador += 1
-        return build, build_img
+        return build, build_img, experimental_build
     else:
         print("No se pudo obtener la página." + str(response))
 
@@ -99,7 +116,7 @@ def generate_Imagen(build_img):
 
     image_path = "merged_images.png"
     new_im.save(image_path, "PNG")
-    new_im.show()
+    #new_im.show()
     return image_path
 
 @bot.message_handler(commands=['start', 'help'])
@@ -112,9 +129,15 @@ def send_builds(message):
     msg = message.text.split(' ')  # split the message
     champion_name = msg[1]
     mode = ''
+    position = ''
     if len(msg) == 3:
-        mode = msg[2]
-    builds, build_img = scrape_build(champion_name, mode)
+        if msg[2] in positionlist:
+            position = msg[2]
+        else:
+            mode = msg[2]
+    #elif len(msg) == 4: maybe soon
+        #position = msg[3]
+    builds, build_img, experimental_build = scrape_build(champion_name, mode, position)
     imagen = generate_Imagen(build_img)
     print('build!!!! ' + str(builds))
     builds = '\n'.join(builds)
@@ -122,6 +145,8 @@ def send_builds(message):
         bot.reply_to(message, builds)
         with open(imagen, 'rb') as photo:
             bot.send_photo(message.chat.id, photo)
+        if experimental_build:
+            bot.send_message(message.chat.id,'Esta build es experimental, puede que no sea correcta')
     else:
         bot.reply_to(message, f"No se pudieron encontrar builds para " +  champion_name + " en este momento.")
 
