@@ -2,7 +2,10 @@ import os
 import requests
 
 # Test Riot API
-url = "https://ddragon.leagueoflegends.com/cdn/14.9.1/data/en_US/item.json"
+url_version = "https://ddragon.leagueoflegends.com/api/versions.json"
+response_version = requests.get(url_version).json()
+
+url = "https://ddragon.leagueoflegends.com/cdn/"+ response_version +"/data/en_US/item.json"
 
 response = requests.get(url)
 data = response.json()
@@ -15,7 +18,7 @@ if not os.path.exists(folder_path):
 # Iterar sobre los ítems y descargar las imágenes
 for id, item in data["data"].items():
     nombre = item["name"]
-    image_url = f"https://ddragon.leagueoflegends.com/cdn/14.9.1/img/item/{id}.png"
+    image_url = f"https://ddragon.leagueoflegends.com/cdn/"+ response_version +"/img/item/{id}.png"
     
     # Descargar la imagen
     image_response = requests.get(image_url)

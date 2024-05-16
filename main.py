@@ -4,6 +4,7 @@ import telebot
 import json
 from PIL import Image
 import os
+import templategen
 
  
 with open('token.json', 'r') as file:
@@ -94,7 +95,7 @@ def scrape_build(champion_name, mode, position):
     else:
         print("No se pudo obtener la página." + str(response))
 
-def generate_Imagen(build_img):
+"""def generate_Imagen(build_img):
     img_list = []
     for img_path in build_img:
         img_list.append(Image.open("imagenes_items_modificadas/" + img_path + ".png"))
@@ -114,10 +115,10 @@ def generate_Imagen(build_img):
             current_x = 0
             current_y += img_size[1]
 
-    image_path = "merged_images.png"
+    image_path = "merged_images"
     new_im.save(image_path, "PNG")
     #new_im.show()
-    return image_path
+    return image_path"""
 
 @bot.message_handler(commands=['start', 'help'])
 def send_welcome(message):
@@ -138,7 +139,10 @@ def send_builds(message):
     #elif len(msg) == 4: maybe soon
         #position = msg[3]
     builds, build_img, experimental_build = scrape_build(champion_name, mode, position)
-    imagen = generate_Imagen(build_img)
+    #imagen = generate_Imagen(build_img)
+    row_texts = ['Fase Inicial', 'Early Game', 'Mid Game', 'Late Game']  # Array de textos por fila
+    imagen = templategen.create_template(1080, 720,6,4,128,128,build_img,row_texts)
+    print('IMAGEN!!!' + str(imagen))
     print('build!!!! ' + str(builds))
     builds = '\n'.join(builds)
     if builds:
