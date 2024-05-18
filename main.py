@@ -42,6 +42,10 @@ def scrape_build(champion_name, mode, position):
     if response.status_code == 200:
         build =  []
         build_img = []
+        build_starter = []
+        build_early = []
+        build_core = []
+        build_full = []
         soup = BeautifulSoup(response.text, 'html.parser')
         
         # first Container
@@ -79,19 +83,39 @@ def scrape_build(champion_name, mode, position):
                 else:
                     if container:
                         # Extraer los elementos de la build
-                        build_items = container.find_all('img')
-                        
+                        #build_items = container.find_all('img')
+                        build_items_container = container.find_all('div', class_ = 'm-yhe5ws')
+                        print('NUMERO DE ELEMENTOS: ' + str(len(build_items_container)))
+                        for index, item in enumerate(build_items_container):
+                            if index == 0: #Start Game
+                                auxItem = item.find_all('img')
+                                for aux in auxItem:
+                                    build_starter.append(aux['alt'])
+                            if index == 1: # Early Game
+                                auxItem = item.find_all('img')
+                                for aux in auxItem:
+                                    build_early.append(aux['alt'])
+                            if index == 2: # Mid/Core Game
+                                auxItem = item.find_all('img')
+                                for aux in auxItem:
+                                    build_core.append(aux['alt'])
+                            if index == 3: # Full Build
+                                auxItem = item.find_all('img')
+                                for aux in auxItem:
+                                    build_full.append(aux['alt'])
+
+
                         # Imprimir los elementos de la build
-                        print("Build de " + champion_name + ":")
+                        """print("Build de " + champion_name + ":")
                         build.append('\n' +titulos[contador])
                         for item in build_items:
                             print(item['alt'])
                             build.append(item['alt'])
-                            build_img.append(item['alt'])
+                            build_img.append(item['alt'])"""
                     else:
                         print("No se encontró la información de la build.")
                 contador += 1
-        return build, build_img, experimental_build
+        return build, build_starter,build_early,build_core,build_full, experimental_build 
     else:
         print("No se pudo obtener la página." + str(response))
 
@@ -138,10 +162,10 @@ def send_builds(message):
             mode = msg[2]
     #elif len(msg) == 4: maybe soon
         #position = msg[3]
-    builds, build_img, experimental_build = scrape_build(champion_name, mode, position)
+    builds, build_starter, build_early, build_core, build_full, experimental_build = scrape_build(champion_name, mode, position)
     #imagen = generate_Imagen(build_img)
-    row_texts = ['Fase Inicial', 'Early Game', 'Mid Game', 'Late Game']  # Array de textos por fila
-    imagen = templategen.create_template(1080, 720,6,4,128,128,build_img,row_texts)
+    row_texts = ['Start Game', 'Early Game', 'Mid Game', 'Late Game']
+    imagen = templategen.create_template(1080, 720,6,4,128,128,build_starter,build_early,build_core,build_full,row_texts)
     print('IMAGEN!!!' + str(imagen))
     print('build!!!! ' + str(builds))
     builds = '\n'.join(builds)

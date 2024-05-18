@@ -2,6 +2,7 @@
 /imagenes_items
 /imagenes_items_modificadas
 /.venv
+/__pycache__
 
 #Files
 token.json
