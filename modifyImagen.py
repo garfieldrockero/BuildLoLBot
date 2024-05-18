@@ -5,7 +5,7 @@ from PIL import ImageDraw
 
 # Test Riot API
 url_version = "https://ddragon.leagueoflegends.com/api/versions.json"
-response_version = requests.get(url_version).json()
+response_version = requests.get(url_version).json()[0]
 
 url = "https://ddragon.leagueoflegends.com/cdn/" + response_version +"/data/en_US/item.json"
 response = requests.get(url)
