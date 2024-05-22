@@ -23,6 +23,7 @@ url = ''
 positionlist = ['top', 'jungle', 'mid', 'adc', 'support']
 experimental_build = False
 def scrape_build(champion_name, mode, position):
+    experimental_build= False
     print('POSITION: ' + position)
     # check the mode
     if mode.lower() == 'aram':
@@ -165,13 +166,14 @@ def send_builds(message):
     builds, build_starter, build_early, build_core, build_full, experimental_build = scrape_build(champion_name, mode, position)
     #imagen = generate_Imagen(build_img)
     row_texts = ['Start Game', 'Early Game', 'Mid Game', 'Late Game']
-    imagen = templategen.create_template(1080, 720,6,4,128,128,build_starter,build_early,build_core,build_full,row_texts)
-    print('IMAGEN!!!' + str(imagen))
+    imagenbuild = templategen.create_template_build(1902,1080,6,4,128,128,build_starter,build_early,build_core,build_full,row_texts,'imagen_final_build')
+    #imagenrunes = templategen.create_template(1080, 720,6,4,128,128,build_starter,build_early,build_core,build_full,row_texts,'imagen_final_build') Soon :)
+    print('IMAGEN!!!' + str(imagenbuild))
     print('build!!!! ' + str(builds))
     builds = '\n'.join(builds)
     if builds:
         bot.reply_to(message, builds)
-        with open(imagen, 'rb') as photo:
+        with open(imagenbuild, 'rb') as photo:
             bot.send_photo(message.chat.id, photo)
         if experimental_build:
             bot.send_message(message.chat.id,'Esta build es experimental, puede que no sea correcta')

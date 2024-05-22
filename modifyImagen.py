@@ -23,8 +23,8 @@ for image_file in image_files:
     try:
         input_image_path = os.path.join(input_folder, image_file)
 
-        img1 = Image.open(r"background.png")
-
+        #img1 = Image.open(r"background.png")
+        img1 = Image.new("RGBA", (128, 128), (0, 0, 0, 0))
         item_id = os.path.splitext(image_file)[0]
 
         item_name = data["data"][item_id]["name"]
