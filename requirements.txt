@@ -6,4 +6,4 @@ pillow==10.3.0
 pyTelegramBotAPI==4.17.0
 requests==2.32.4
 soupsieve==2.5
-urllib3==2.6.0
+urllib3==2.6.3
